@@ -92,7 +92,7 @@ p <- ggplot(total.steps, aes(x = daily_total)) + ggtitle("Histogram of the Total
 p
 ```
 
-![plot of chunk firsthist](figure/firsthist.png) 
+![plot of chunk Histtotalstepswithmissingdata](figure/Histtotalstepswithmissingdata.png) 
 
 
 
@@ -128,7 +128,7 @@ p <- ggplot(interval.steps, aes(x = interval, y = interval_mean, fill = "blue"))
 p
 ```
 
-![plot of chunk secondhist](figure/secondhist.png) 
+![plot of chunk Timeseries1](figure/Timeseries1.png) 
 
 ```r
 
@@ -200,7 +200,7 @@ p <- ggplot(daily.steps.new, aes(x = daily_total)) + ggtitle("Histogram of total
 p
 ```
 
-![plot of chunk thirdhist](figure/thirdhist.png) 
+![plot of chunk histafterimputingmeans](figure/histafterimputingmeans.png) 
 
 The mean and median of total daily steps after filling in the missing values is higher than before, as would be expected.
 
