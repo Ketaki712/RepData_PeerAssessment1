@@ -123,8 +123,8 @@ Here is the time series plot by average number of steps per interval averaged ac
 
 ```r
 p <- ggplot(interval.steps, aes(x = interval, y = interval_mean, fill = "blue")) + 
-    geom_line(color = "blue") + scale_x_continuous(breaks = seq(0, 2355, 500), 
-    limits = c(0, 2355))
+    geom_line(color = "blue") + ggtitle("Time series plot for average activity in intervals ") + 
+    scale_x_continuous(breaks = seq(0, 2355, 500), limits = c(0, 2355))
 p
 ```
 
@@ -194,9 +194,9 @@ median.steps.new
 Here is the summary of mean daily steps after imputing missing data by means of a histogram :
 
 ```r
-p <- ggplot(daily.steps.new, aes(x = daily_total)) + geom_histogram(binwidth = 1000, 
-    fill = "blue") + theme(axis.text.x = element_text(angle = 270)) + scale_x_continuous(breaks = seq(0, 
-    40000, 1000), limits = c(0, 40000))
+p <- ggplot(daily.steps.new, aes(x = daily_total)) + ggtitle("Histogram of total daily steps after imputing means") + 
+    geom_histogram(binwidth = 1000, fill = "blue") + theme(axis.text.x = element_text(angle = 270)) + 
+    scale_x_continuous(breaks = seq(0, 40000, 1000), limits = c(0, 40000))
 p
 ```
 
@@ -232,16 +232,49 @@ Median.Differnece
 ## weekends? ###############
 
 ## Adding identifier columns for weekend and weekday
-
+filled.data$date <- as.POSIXlt(filled.data$date)  #ensuring date is a POSIXlt object
 new.activity.data <- transform(filled.data, weekend = as.POSIXlt(date, format = "%Y/%m/%d")$wday %in% 
     c(0, 6))
 
-new.activity.data(tail, 10)
+# Dividing the 2 datasets and adding a label for weekday/weekdend and
+# combining again
+weekend_data <- subset(new.activity.data, weekend == TRUE)
+weekend_data$day <- rep("Weekend", nrow(weekend_data))
+weekday_data <- subset(new.activity.data, weekend == FALSE)
+weekday_data$day <- rep("Weekday", nrow(weekday_data))
+
+# merging the 2 datasets
+total_data <- rbind(weekend_data, weekday_data)
+
+# calculating interval mean
+new.interval.steps <- ddply(total_data, .(day, interval), summarize, interval_mean = mean(steps, 
+    na.rm = T))
+# Making sure weekend and weekday are 2 levels of the column day of type
+# factor
+new.interval.steps$day <- as.factor(new.interval.steps$day)
+```
+
+Here is the time series plot split vertically by type of day being weekday or weekend:
+
+
+```r
+p <- ggplot(new.interval.steps, aes(x = interval, y = interval_mean)) + geom_line() + 
+    facet_grid(day ~ .) + ggtitle("Time Series plot for interval level activity by Weekday or Weekend") + 
+    theme(strip.background = element_rect(color = "blue", fill = "green"))
+scale_x_continuous(breaks = seq(0, 2355, 500), limits = c(0, 2355))
 ```
 
 ```
-## Error: could not find function "new.activity.data"
+## continuous_scale(aesthetics = c("x", "xmin", "xmax", "xend", 
+##     "xintercept"), scale_name = "position_c", palette = identity, 
+##     breaks = ..1, limits = ..2, expand = expand, guide = "none")
 ```
+
+```r
+p
+```
+
+![plot of chunk panelplot](figure/panelplot.png) 
 
 ```r
 
