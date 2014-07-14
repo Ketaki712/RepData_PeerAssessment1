@@ -123,7 +123,7 @@ Here is the time series plot by average number of steps per interval averaged ac
 
 ```r
 p <- ggplot(interval.steps, aes(x = interval, y = interval_mean, fill = "blue")) + 
-    geom_line(color = "blue") + ggtitle("Time series plot for average activity in intervals ") + 
+    ylab("average numer of steps") + geom_line(color = "blue") + ggtitle("Time series plot for average activity in intervals ") + 
     scale_x_continuous(breaks = seq(0, 2355, 500), limits = c(0, 2355))
 p
 ```
@@ -260,7 +260,8 @@ Here is the time series plot split vertically by type of day being weekday or we
 ```r
 p <- ggplot(new.interval.steps, aes(x = interval, y = interval_mean)) + geom_line() + 
     facet_grid(day ~ .) + ggtitle("Time Series plot for interval level activity by Weekday or Weekend") + 
-    theme(strip.background = element_rect(color = "blue", fill = "green"))
+    ylab("Average number of steps") + theme(strip.background = element_rect(color = "blue", 
+    fill = "green"))
 scale_x_continuous(breaks = seq(0, 2355, 500), limits = c(0, 2355))
 ```
 
