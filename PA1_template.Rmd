@@ -1,20 +1,96 @@
-# Reproducible Research: Peer Assessment 1
+Assignment 1 : Reproducible Research
+================================================================
+  
+```{r setoptions, echo=FALSE}
+
+```
+```{r}
+
+## Ketaki Kulkarni - July 10,2014
+## Project 1  - Reproducible Research
+# Reproducible Research: Peer Assessment
 
 
-## Loading and preprocessing the data
 
+#Adding required libraries
+library(httr)
+library(ggplot2)
+library(plyr)
+library(xlsx)
 
+######### Part 1 of the assignment - Loading and processing the data###########
 
-## What is mean total number of steps taken per day?
+# get the file url
+dataurl = "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
+# create a temporary directory
+td = tempdir()
+# create the placeholder file
+tf = tempfile(tmpdir=td, fileext=".zip")
+# download into the placeholder file
+download.file(dataurl, tf,method="curl")
+# get the name of the first file in the zip archive
+fname = unzip(tf, list=TRUE)$Name
+# unzip the file to the temporary directory
+unzip(tf, files=fname, exdir=td, overwrite=TRUE)
+# fpath is the full path to the extracted file
+fpath = file.path(td, fname)
+#using read.csv() function to read all the files 
+activity.data<- read.csv(file=fpath,header=TRUE,sep=",")
+str(activity.data)
+###################Part 2 - Mean total steps taken per day#######
+```
+Here is the summary of mean daily steps by means of a histogram :
+```{r firsthist}
+mean.steps <- ddply(activity.data,.(date),summarize, daily_total= sum(steps,na.rm=T),daily_mean= mean(steps,na.rm=T),median_daily=median(steps,na.rm=T))
+dataforplot <- subset(mean.steps,select=c("date","daily_total"))
+p <- ggplot(dataforplot ,aes(x=daily_total,fill="blue"))+
+  geom_histogram(binwidth=5000) +
+  scale_x_continuous(breaks=seq(0,40000,1000),limits=c(0,40000))
+p
 
+######Part 3 - Average Daily Activity Pattern##############
+interval.steps <- ddply(activity.data,.(interval),summarize, interval_mean= mean(steps,na.rm=T))
 
+max.steps <- max(interval.steps$interval_mean)
+max.interval <- subset(interval.steps,interval_mean == max.steps)
+max.interval$interval
+```
+Here is the summary of mean interval steps by means of a histogram :
+```{r secondhist}
+p <- ggplot(interval.steps ,aes(x=interval,y=interval_mean,fill="blue"))+
+  geom_line() +
+  scale_x_continuous(breaks=seq(0,2355,500),limits=c(0,2355))
+p
 
-## What is the average daily activity pattern?
+############### Part 4 Finding and filling missing values########
 
+missing.values <- sum(is.na(activity.data))
 
+impute.mean <- function(x) replace (x,is.na(x),mean(x,na.rm=TRUE))
+filled.data <- ddply(activity.data,.(interval),transform,steps=impute.mean(steps))
+filled.data[order(filled.data[,2])]
+#filled.data <- sort(filled.data$date)
+names(filled.data)
+mean.steps.new <- ddply(filled.data,.(date),summarize, daily_total= sum(steps),daily_mean= mean(steps,na.rm=T),median_daily=median(steps,na.rm=T))
+dataforplot.new <- subset(mean.steps.new,select=c("date","daily_total"))
+```
+Here is the summary of mean daily steps after imputing missing data by means of a histogram :
+```{r thirdhist}
+p <- ggplot(dataforplot.new ,aes(x=daily_total,fill="blue"))+
+  geom_histogram(binwidth=5000) +
+  scale_x_continuous(breaks=seq(0,40000,1000),limits=c(0,40000))
+p
 
-## Imputing missing values
-
-
+identical(mean.steps.new,mean.steps)
+mean.steps$daily_total
+mean.steps.new$daily_total
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+```
+
+
+
+
+
+
